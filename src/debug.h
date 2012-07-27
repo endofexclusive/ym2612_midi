@@ -4,7 +4,7 @@
 #define DEBUG_LEVEL 1
 #define DEBUG_LEVEL_PRINT 1
 
-#define dprintf(fmt, ...) \
+#define dprint(fmt, ...) \
     do { \
         if (DEBUG_LEVEL >= DEBUG_LEVEL_PRINT) { \
             fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
@@ -12,6 +12,7 @@
         } \
     } while (0)
 
+#define dputs(string) dprint("%s\n", string)
 #if DEBUG_LEVEL >= 1
 #define D if(1)
 #else

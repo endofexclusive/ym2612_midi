@@ -19,9 +19,9 @@ int main(void)
 {
     Transport_in *tin;
     Random_in rin;
-    Serial_in sin;
+    Uart_in sin;
 
-    serial_in_init(&sin, 0,0,0,0);
+    uart_in_init(&sin, 0,0,0,0);
     random_in_init(&rin, 13);
     tin = (Transport_in *) &sin;
     printf("Transporting %x\n", tin->get(tin));

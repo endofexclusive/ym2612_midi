@@ -1,8 +1,8 @@
 #include <avr/io.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <ym.h>
-#include <busyloop.h>
+#include "ym.h"
+#include "busyloop.h"
 
 /* This test file assumes the following pin configuration.
 PA0: NCS PA1: NWR PA2: NRD PA3: A0 PA4: A1 PA5: NIC */

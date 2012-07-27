@@ -1,3 +1,5 @@
+#ifndef DEBUG_H
+#define DEBUG_H
 #include <stdio.h>
 
 /* NDEBUG is for assertions, DEBUG for debug printout. */
@@ -14,8 +16,5 @@
     } while (0)
 
 #define dputs(string) dprint("%s\n", string)
-#if DEBUG_LEVEL >= 1
-#define D if(1)
-#else
-#define D if(0)
-#endif
+#endif /* DEBUG_H */
+

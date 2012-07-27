@@ -1,16 +1,12 @@
-#include <avr/io.h>
-
 #ifndef BUSYLOOP_H
 #define BUSYLOOP_H
-
 /** @file
-Busy-waiting-loop module for ATmega16. This module is fine-tuned for
-a system clock frequency of 8 MHz. Timer/Counter0 is used.
+Busy-waiting-loop module for ATmega16. This module is fine-tuned
+for a system clock frequency of 8 MHz. Timer/Counter0 is used.
 @author Martin Åberg martin@fripost.org
 */
-#if __STDC_VERSION__ < 19901L
-# error "C99 is required."
-#endif
+
+#include <avr/io.h>
 
 /** Delay execution for a specified @e number of
 milliseconds. */

@@ -27,7 +27,7 @@ static uint8_t console_in_get(Console_in *self)
 void console_in_init(Console_in *self)
 {
     Transport_in *t_in = &(self->parent);
-    t_in->get = (Transport_in_get) console_in_get;
+    t_in->get = (Transport_in_get *) console_in_get;
     dputs("Initializing console");
 }
 

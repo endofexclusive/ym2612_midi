@@ -1,21 +1,19 @@
-TARGET = test
-OBJECTS = ym.o test.o busyloop.o
-SRCDIR = ../src
-DEPS = $(SRCDIR)/*.h
-INC = -I$(SRCDIR)
-VPATH = $(SRCDIR)
+TARGET = ym_synth.out
+CSOURCES = ym.c main.c busyloop.c
 CC = avr-gcc
 MCU=atmega16
 OPTLEVEL=0
 
 CFLAGS = -mmcu=$(MCU) -std=c99 -g \
          -O$(OPTLEVEL) \
-         -Wall -Wextra -Wstrict-prototypes \
-         -pedantic $(INC)
+         -Wall
 
-all: $(TARGET)
+LDFLAGS = -mmcu=$(MCU) -Wl,-Map,$(TARGET).map
+
+OBJECTS = $(CSOURCES:.c=.o)
 
 $(TARGET): $(OBJECTS)
+	$(CC) $(LDFLAGS) -o $(TARGET) $(OBJECTS)
 
 $(OBJECTS): $(DEPS)
 
@@ -29,7 +27,7 @@ gdb: $(TARGET)
 	avr-gdb -x gdbinit
 
 clean:
-	rm -f $(OBJECTS) $(TARGET)
+	rm -f $(OBJECTS) $(TARGET) $(TARGET).map
 
 # Every non-.PHONY rule must update a file with the exact
 # name of its target.  Make sure every command script touches

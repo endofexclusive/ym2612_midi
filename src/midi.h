@@ -10,13 +10,19 @@ Device independent MIDI driver.
 #include "transport_in.h"
 
 typedef struct Midi_message Midi_message;
-typedef struct Midi_in Midi_in;
-typedef struct Midi_out Midi_out;
 
 struct Midi_message {
     uint8_t status;
     uint8_t data1, data2;
 };
+
+bool midi_message_is_note_off(Midi_message *m);
+bool midi_message_is_note_on(Midi_message *m);
+bool midi_message_is_control(Midi_message *m);
+bool midi_message_is_program_change(Midi_message *m);
+bool midi_message_is_mode(Midi_message *m);
+
+typedef struct Midi_in Midi_in;
 
 struct Midi_in {
     Transport_in *transport;
@@ -27,11 +33,6 @@ struct Midi_in {
     uint8_t index_max;
 };
 
-bool midi_message_is_note_on(Midi_message *m);
-bool midi_message_is_note_off(Midi_message *m);
-bool midi_message_is_control(Midi_message *m);
-bool midi_message_is_mode(Midi_message *m);
-
 void midi_in_init(Midi_in *self, Transport_in *transport);
 
 /** Wait for a MIDI message.
@@ -39,14 +40,15 @@ void midi_in_init(Midi_in *self, Transport_in *transport);
 @param message The Midi_message structure to fill. */
 void midi_in_wait(Midi_in *self, Midi_message *message);
 
-/*
+typedef struct Midi_out Midi_out;
+
+typedef void (Midi_out_put)(Midi_out *self, Midi_message *message);
+
 struct Midi_out {
-    Transport_out *transport;
+    Midi_out_put *put;
 };
 
-void midi_out_init(Midi_out *self, Transport_out *transport);
 void midi_out_put(Midi_out *self, Midi_message *message);
-*/
 
 #endif
 

@@ -4,16 +4,6 @@
 #include "debug.h"
 #include "midi.h"
 
-bool midi_message_is_note_on(Midi_message *m)
-{
-    if (0x90 == (m->status & 0xf0)) {
-        if (m->data2 != 0x00) {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool midi_message_is_note_off(Midi_message *m)
 {
     if (0x80 == (m->status & 0xf0)) {
@@ -21,6 +11,16 @@ bool midi_message_is_note_off(Midi_message *m)
     }
     if (0x90 == (m->status & 0xf0)) {
         if (m->data2 == 0x00) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool midi_message_is_note_on(Midi_message *m)
+{
+    if (0x90 == (m->status & 0xf0)) {
+        if (m->data2 != 0x00) {
             return true;
         }
     }
@@ -46,6 +46,12 @@ bool midi_message_is_mode(Midi_message *m)
     }
     return false;
 }
+
+bool midi_message_is_program_change(Midi_message *m)
+{
+    return (0xc0 == (m->status & 0xf0)) ? true : false;
+}
+
 
 static bool is_status_message(uint8_t status)
 {

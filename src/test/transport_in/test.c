@@ -12,8 +12,8 @@ data? */
 #include <inttypes.h>
 #include <debug.h>
 #include <transport_in.h>
-#include <random_in.h>
 #include <uart_in.h>
+#include "random_in.h"
 
 int main(void)
 {

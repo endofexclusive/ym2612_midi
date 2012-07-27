@@ -42,6 +42,7 @@ int main(void)
             } else {
                 acc += n;
                 putchar(acc);
+                fflush(stdout);
                 state = 0;
             }
         } else {

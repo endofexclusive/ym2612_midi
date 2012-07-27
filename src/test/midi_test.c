@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include "debug.h"
 #include "transport_in.h"
@@ -17,7 +18,9 @@ static uint8_t console_in_get(Console_in *self)
     int c;
 
     c = getchar();
-    assert(EOF != c);
+    if (EOF == c) {
+        exit(0);
+    }
     return c;
 }
 
@@ -31,9 +34,18 @@ void console_in_init(Console_in *self)
 int main(void)
 {
     Midi_in min;
+    Midi_message msg;
     Console_in cin;
+    Transport_in *tin;
 
     console_in_init(&cin);
-    midi_in_init(&min, &cin);
+    tin = (Transport_in *) &cin;
+    
+    midi_in_init(&min, tin);
+    midi_in_wait(&min, &msg);
+    /*while(1) {
+        putchar(tin->get(tin));
+        fflush(NULL);
+    }*/
 }
 

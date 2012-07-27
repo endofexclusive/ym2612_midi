@@ -7,20 +7,8 @@ Device independent MIDI driver.
 */
 
 #include <stdbool.h>
+#include "midi_message.h"
 #include "transport_in.h"
-
-typedef struct Midi_message Midi_message;
-
-struct Midi_message {
-    uint8_t status;
-    uint8_t data1, data2;
-};
-
-bool midi_message_is_note_off(Midi_message *m);
-bool midi_message_is_note_on(Midi_message *m);
-bool midi_message_is_control(Midi_message *m);
-bool midi_message_is_program_change(Midi_message *m);
-bool midi_message_is_mode(Midi_message *m);
 
 typedef struct Midi_in Midi_in;
 
@@ -51,4 +39,3 @@ struct Midi_out {
 void midi_out_put(Midi_out *self, Midi_message *message);
 
 #endif
-

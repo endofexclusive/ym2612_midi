@@ -10,7 +10,7 @@ test: midi_test hex2bin
 	./hex2bin < testdata_in | ./midi_test > testdata_out
 	diff testdata_out testdata_oracle
 
-human: human.c midi.c raw_in.c pretty_out.c
+human: human.c midi.c raw_in.c pretty_out.c midi_message.c
 
 human_test: human hex2bin
 	./hex2bin < testdata_in | ./human

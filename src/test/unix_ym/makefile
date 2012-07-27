@@ -1,7 +1,6 @@
 PROGS = test
 OBJECTS = ym.o test.o
-SRCDIR = ../src
-DEPS = ../src/*.h
+SRCDIR = ../..
 VPATH = $(SRCDIR)
 
 CFLAGS = -I $(SRCDIR) -std=c99 -Wall -Wextra -pedantic \

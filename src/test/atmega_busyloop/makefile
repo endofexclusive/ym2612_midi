@@ -1,7 +1,6 @@
 TARGET = busyloop_test
 OBJECTS = busyloop_test.o busyloop.o
-SRCDIR = ../src
-DEPS = $(SRCDIR)/*.h
+SRCDIR = ../..
 INC = -I$(SRCDIR)
 VPATH = $(SRCDIR)
 CC = avr-gcc
@@ -16,8 +15,6 @@ CFLAGS = -mmcu=$(MCU) -std=c99 -g \
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-
-$(OBJECTS): $(DEPS)
 
 program: $(TARGET)
 	sudo avarice -g --erase --program --file $(TARGET)

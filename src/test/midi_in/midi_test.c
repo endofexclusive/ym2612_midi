@@ -1,35 +1,9 @@
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include "debug.h"
 #include "transport_in.h"
+#include "console_in.h"
 #include "midi.h"
-
-typedef struct Console_in Console_in;
-
-struct Console_in {
-    Transport_in parent;
-};
-
-void console_in_init(Console_in *self);
-
-static uint8_t console_in_get(Console_in *self)
-{
-    int c;
-
-    c = getchar();
-    if (EOF == c) {
-        exit(0);
-    }
-    return c;
-}
-
-void console_in_init(Console_in *self)
-{
-    Transport_in *t_in = &(self->parent);
-    t_in->get = (Transport_in_get *) console_in_get;
-    dputs("Initializing console");
-}
 
 void midi_message_print(Midi_message *m)
 {

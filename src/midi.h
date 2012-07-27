@@ -27,9 +27,10 @@ struct Midi_in {
     uint8_t index_max;
 };
 
-bool midi_message_is_noteon(Midi_message *m);
-bool midi_message_is_noteoff(Midi_message *m);
+bool midi_message_is_note_on(Midi_message *m);
+bool midi_message_is_note_off(Midi_message *m);
 bool midi_message_is_control(Midi_message *m);
+bool midi_message_is_mode(Midi_message *m);
 
 void midi_in_init(Midi_in *self, Transport_in *transport);
 

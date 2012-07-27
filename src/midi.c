@@ -41,6 +41,7 @@ static bool is_channel_message(uint8_t status)
     return ((0x80 <= status) && (status <= 0xef)) ? true : false;
 }
 
+/* This works for channel messages. */
 uint8_t number_of_data_bytes(uint8_t token)
 {
     switch (token & 0xf0) {
@@ -103,17 +104,16 @@ static bool parse(Midi_in *self, uint8_t token)
     }
     if (is_data_byte(token)) {
         if (is_channel_message(self->running_status)) {
-            self->buffer[0] = self->running_status;
             /* Continue building up the channel message. */
             self->buffer[++self->index] = token;
             dprint("buffer[%d] <- 0x%x\n", self->index, token);
             assert(0 != self->index);
             if (self->index == self->index_max) {
                 /* We are done with this message. */
-                self->message->status = self->buffer[0];
+                self->message->status = self->running_status;
                 self->message->data1 = self->buffer[1];
                 self->message->data2 = self->buffer[2];
-                self->buffer[0] = 0;
+                self->index = 0;
                 return true;
             }
             return false;

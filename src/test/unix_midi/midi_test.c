@@ -31,6 +31,23 @@ void console_in_init(Console_in *self)
     dputs("Initializing console");
 }
 
+void midi_message_print(Midi_message *m)
+{
+    switch (m->status & 0xf0) {
+        case 0x80:
+        case 0x90:
+        case 0xa0:
+        case 0xb0:
+        case 0xe0:
+            printf("0x%x 0x%x 0x%x\n", m->status, m->data1, m->data2);
+            break;
+        case 0xc0:
+        case 0xd0:
+            printf("0x%x 0x%x\n", m->status, m->data1);
+            break;
+    }
+}
+
 int main(void)
 {
     Midi_in min;
@@ -42,10 +59,9 @@ int main(void)
     tin = (Transport_in *) &cin;
     
     midi_in_init(&min, tin);
-    midi_in_wait(&min, &msg);
-    /*while(1) {
-        putchar(tin->get(tin));
-        fflush(NULL);
-    }*/
+    while(1) {
+        midi_in_wait(&min, &msg);
+        midi_message_print(&msg);
+    }
 }
 

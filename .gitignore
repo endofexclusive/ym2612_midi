@@ -2,4 +2,4 @@ resources
 api_doc
 *.swp
 *.o
-
+*.out

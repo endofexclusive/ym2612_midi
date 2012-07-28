@@ -37,7 +37,6 @@ static const struct ym_control CONTROL_WRITE = {.A0 = 0, .A1 = 0,
 static const uint8_t ym_A0_ADDRESS = 0x00;
 static const uint8_t ym_A0_DATA = 0x01;
 
-
 void ym_init(Ym_driver *self, ym_set_control *set_control,
   ym_set_data *set_data, ym_delay_us *delay_us)
 {
@@ -57,9 +56,9 @@ void ym_reset(Ym_driver *self)
     self->set_control(CONTROL_IDLE);
     /* FIXME: Use a macro for number of elements */
     int i = sizeof(self->shadow_0x30) / sizeof(uint8_t);
-    while(i)
+    while(i--)
     {
-        self->shadow_0x30[i--] = 0;
+        self->shadow_0x30[i] = 0;
     }
 }
 /* FIXME: The parameter types... */

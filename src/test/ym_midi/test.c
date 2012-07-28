@@ -14,56 +14,44 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "debug.h"
 #include "ym.h"
+#include "ym_midi.h"
 
-/* Declare static? */
-void delay_us_impl(uint16_t t)
+static void delay_us_impl(uint16_t t)
 {
-    dprint("Delaying %d us.\n", t);
+//    dprint("Delaying %d us.\n", t);
 }
 
-void set_data_impl(uint8_t data)
+static void set_data_impl(uint8_t data)
 {
-    dprint("DATA: $%x.\n", data);
+//    dprint("DATA: $%x.\n", data);
 }
 
-void set_control_impl(struct ym_control c)
+static void set_control_impl(struct ym_control c)
 {
-    /* Assume that signal NRD is always high. Assume that
-    signal NWR is always low. */
-    /* Start with ALL signals low. */
-    /* Set NRD. */
-    if (c.A0)
-    {
-        /* Set A0. */
-    }
-    if (c.A1)
-    {
-        /* Set A1. */
-    }
-    if (c.NCS)
-    {
-        /* Set NCS. */
-    }
-    if (c.NIC)
-    {
-        /* Set NIC. */
-    }
-    /* Displaying the implementation behavior. */
-    dprint("[NIC:%x ", c.NIC);
-    dprint("NCS:%x ", c.NCS);
-    dprint("NRD:%x ", 0 !=  (c.NRD));
-    dprint("NWR:%x ", 0 !=  (c.NWR));
-    dprint("NRD:%x ", 0);
-    dprint("NWR:%x ", 1);
-    dprint("A1:%x ", c.A1);
-    dprint("A0:%x]\n", c.A0);
+//    dprint("[NIC:%x NCS:%x NRD:%x NWR:%x A1:%x A0:%x]\n", c.NIC,
+//      c.NCS, c.NRD, c.NWR, c.A1, c.A0);
 }
 
 int main(void)
 {
     Ym_driver yd;
+    Ym_midi ym;
+    Midi_message msg;
+    Midi_out *mo;
+
+    mo = (Midi_out *) &ym;
     ym_init(&yd, set_control_impl, set_data_impl, delay_us_impl);
-    ym_set(&yd, ym_PORT1, 0xaa, 0xbb);
+    ym_reset(&yd);
+
+    ym_midi_init(&ym, &yd);
+
+    msg.status = 0xd4;
+    msg.data1 = 0x10;
+    msg.data2 = 0x00;
+    mo->put(mo, &msg);
+
+
+
     return 0;
 }
 

@@ -21,6 +21,10 @@ static void ym_midi_put(Ym_midi *self, Midi_message *m)
     uint8_t channel;
 
     channel = m->status & 0x0f;
+    if (5 < channel) {
+        dputs("5 < channel, skip");
+        return;
+    }
     if (midi_message_is_note_on(m)) {
         dprint("Note-On, channel %x, key %x, vel %x\n",
           m->status & 0x0f, m->data1, m->data2);
@@ -39,14 +43,15 @@ static void ym_midi_put(Ym_midi *self, Midi_message *m)
         dprint("Program change, channel %x, program %x\n",
           m->status & 0x0f, m->data1);
     } else {
-        dprint("Unknown MIDI message [%x, %x, %x].\n", 
+        dprint("Unimplemented MIDI message [%x, %x, %x], skip.\n", 
           m->status, m->data1, m->data2);
     }
 }
 
-void ym_midi_init(Ym_midi *self, Ym_driver driver)
+void ym_midi_init(Ym_midi *self, Ym_driver *driver)
 {
     Midi_out *m_out = &(self->parent);
     m_out->put = (Midi_out_put *) ym_midi_put;
+    self->driver = driver;
     dputs("Initializing Ym_midi");
 }

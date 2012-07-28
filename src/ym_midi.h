@@ -31,6 +31,6 @@ struct Ym_midi {
     Ym_driver *driver;
 };
 
-void ym_midi_init(Ym_midi *self, Ym_driver driver);
+void ym_midi_init(Ym_midi *self, Ym_driver *driver);
 
 #endif

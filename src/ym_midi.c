@@ -14,15 +14,21 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "debug.h"
 #include "ym_midi.h"
+#include "ym.h"
 
 static void ym_midi_put(Ym_midi *self, Midi_message *m)
 {
+    uint8_t channel;
+
+    channel = m->status & 0x0f;
     if (midi_message_is_note_on(m)) {
         dprint("Note-On, channel %x, key %x, vel %x\n",
           m->status & 0x0f, m->data1, m->data2);
+        ym_key_on(self->driver, channel);
     } else if (midi_message_is_note_off(m)) {
         dprint("Note-Off, channel %x, key %x, vel %x\n",
           m->status & 0x0f, m->data1, m->data2);
+        ym_key_off(self->driver, channel);
     } else if (midi_message_is_control(m)) {
         dprint("Control change, channel %x, #%x, value %x\n",
           m->status & 0x0f, m->data1, m->data2);

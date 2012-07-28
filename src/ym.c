@@ -37,7 +37,6 @@ static const struct ym_control CONTROL_WRITE = {.A0 = 0, .A1 = 0,
 static const uint8_t ym_A0_ADDRESS = 0x00;
 static const uint8_t ym_A0_DATA = 0x01;
 
-static uint8_t shadow_0x30[0x10];
 
 void ym_init(Ym_driver *self, ym_set_control *set_control,
   ym_set_data *set_data, ym_delay_us *delay_us)
@@ -56,10 +55,11 @@ void ym_reset(Ym_driver *self)
     reset pulse width. */
     self->delay_us(24);
     self->set_control(CONTROL_IDLE);
-    int i = sizeof(shadow_0x30) / sizeof(uint8_t);
+    /* FIXME: Use a macro for number of elements */
+    int i = sizeof(self->shadow_0x30) / sizeof(uint8_t);
     while(i)
     {
-        shadow_0x30[i--] = 0;
+        self->shadow_0x30[i--] = 0;
     }
 }
 /* FIXME: The parameter types... */
@@ -121,7 +121,7 @@ void ym_set_multiplier(Ym_driver *self, uint8_t channel, uint8_t operator,
 
     port = channel / 3;
     address = ym_calculate_address(channel, operator);
-    valuep = shadow_0x30 + address;
+    valuep = self->shadow_0x30 + address;
     *valuep = (*valuep & 0xf0) + multiplier;
     ym_set(self, port, 0x30 + address, *valuep) ;
 }
@@ -137,7 +137,7 @@ void ym_set_detune(Ym_driver *self, uint8_t channel, uint8_t operator,
 
     port = channel / 3;
     address = ym_calculate_address(channel, operator);
-    valuep = shadow_0x30 + address;
+    valuep = self->shadow_0x30 + address;
     *valuep = (*valuep & 0x8f) + (detune << 4);
     ym_set(self, port, 0x30 + address, *valuep);
 }

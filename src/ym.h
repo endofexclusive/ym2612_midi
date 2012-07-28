@@ -67,6 +67,7 @@ struct Ym_driver {
     ym_set_control *set_control;
     ym_set_data *set_data;
     ym_delay_us *delay_us; 
+    uint8_t shadow_0x30[0x10];
 };
 
 /** Identifies port 0. @sa ym_set() @todo Represent this value

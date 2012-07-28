@@ -1,16 +1,13 @@
 TARGET = ym_synth.out
-CSOURCES = ym.c main.c busyloop.c ym_midi.c midi_message.c
-CC = avr-gcc
-MCU=atmega16
+CFILES = main.c ym.c busyloop.c ym_midi.c midi_message.c
 OPTLEVEL=0
-
-CFLAGS = -mmcu=$(MCU) -std=c99 -g \
-         -O$(OPTLEVEL) \
-         -Wall
-
+CFLAGS = -mmcu=$(MCU) -std=c99 -g -O$(OPTLEVEL) -Wall
 LDFLAGS = -mmcu=$(MCU) -Wl,-Map,$(TARGET).map
+VPATH = ..
+MCU = atmega16
+CC = avr-gcc
 
-OBJECTS = $(CSOURCES:.c=.o)
+OBJECTS = $(CFILES:.c=.o)
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(LDFLAGS) -o $(TARGET) $(OBJECTS)
@@ -19,6 +16,7 @@ $(OBJECTS): $(DEPS)
 
 size: $(TARGET)
 	avr-size $(TARGET)
+
 program: $(TARGET)
 	sudo avarice -g --erase --program --file $(TARGET)
 

@@ -37,25 +37,25 @@ static const struct ym_control CONTROL_WRITE = {.A0 = 0, .A1 = 0,
 static const uint8_t ym_A0_ADDRESS = 0x00;
 static const uint8_t ym_A0_DATA = 0x01;
 
-/* Hold state for the ym driver module. */
-static struct ym_config *config;
-
 static uint8_t shadow_0x30[0x10];
 
-void ym_init(struct ym_config *c)
+void ym_init(Ym_driver *self, ym_set_control *set_control,
+  ym_set_data *set_data, ym_delay_us *delay_us)
 {
     /* Make sure that not both MCU and chip activates their
     output. */
-    config = c;
+    self->set_control = set_control;
+    self->set_data = set_data;
+    self->delay_us = delay_us;
 }
 
-void ym_reset(void)
+void ym_reset(Ym_driver *self)
 {
-    config->set_control(CONTROL_RESET);
+    self->set_control(CONTROL_RESET);
     /* Sleep for 192 cycles, equals 24 us @ 8MHz. This is the
     reset pulse width. */
-    config->delay_us(24);
-    config->set_control(CONTROL_IDLE);
+    self->delay_us(24);
+    self->set_control(CONTROL_IDLE);
     int i = sizeof(shadow_0x30) / sizeof(uint8_t);
     while(i)
     {
@@ -63,53 +63,54 @@ void ym_reset(void)
     }
 }
 /* FIXME: The parameter types... */
-static void ym_write_lowlevel(uint8_t a0, uint8_t a1, uint8_t d)
+static void ym_write_lowlevel(Ym_driver *self, uint8_t a0,
+  uint8_t a1, uint8_t d)
 {
     /* FIXME: The variable name this_control sucks. */
     struct ym_control this_control = CONTROL_WRITE;
     this_control.A0 = a0;
     this_control.A1 = a1;
-    config->set_data(d);
-    config->set_control(this_control);
-    config->delay_us(1);
+    self->set_data(d);
+    self->set_control(this_control);
+    self->delay_us(1);
     this_control.NCS = 1;
-    config->set_control(this_control);
+    self->set_control(this_control);
 }
 
 /* According to translated documentation, wait 17 cycles (2 us)
 after write of address and wait 83 cycles (10 us) after write
 of data (8MHz). */
 
-void ym_set(uint8_t port, uint8_t reg, uint8_t value)
+void ym_set(Ym_driver *self, uint8_t port, uint8_t reg, uint8_t value)
 {
     /* Assert the user input (but not internal stuff). */
     assert(ym_PORT0 == port || ym_PORT1 == port);
     /* Assert reg. */
 
     /* Select register. */
-    ym_write_lowlevel(ym_A0_ADDRESS, port, reg);
+    ym_write_lowlevel(self, ym_A0_ADDRESS, port, reg);
     /* Wait for write to settle. */
-    config->delay_us(2);
+    self->delay_us(2);
 
     /* Write data to current register. */
-    ym_write_lowlevel(ym_A0_DATA, port, value);
+    ym_write_lowlevel(self, ym_A0_DATA, port, value);
     /* Wait for write to settle. */
-    config->delay_us(10);
+    self->delay_us(10);
 }
 
-void ym_key_on(uint8_t channel)
+void ym_key_on(Ym_driver *self, uint8_t channel)
 {
     assert(channel <= 5);
-    ym_set(ym_PORT0, 0x28, 0xf0 + channel);
+    ym_set(self, ym_PORT0, 0x28, 0xf0 + channel);
 }
 
-void ym_key_off(uint8_t channel)
+void ym_key_off(Ym_driver *self, uint8_t channel)
 {
     assert(channel <= 5);
-    ym_set(ym_PORT0, 0x28, 0x00 + channel);
+    ym_set(self, ym_PORT0, 0x28, 0x00 + channel);
 }
 
-void ym_set_multiplier(uint8_t channel, uint8_t operator,
+void ym_set_multiplier(Ym_driver *self, uint8_t channel, uint8_t operator,
   uint8_t multiplier)
 {
     uint8_t port, *valuep, address;
@@ -122,10 +123,10 @@ void ym_set_multiplier(uint8_t channel, uint8_t operator,
     address = ym_calculate_address(channel, operator);
     valuep = shadow_0x30 + address;
     *valuep = (*valuep & 0xf0) + multiplier;
-    ym_set(port, 0x30 + address, *valuep) ;
+    ym_set(self, port, 0x30 + address, *valuep) ;
 }
 
-void ym_set_detune(uint8_t channel, uint8_t operator,
+void ym_set_detune(Ym_driver *self, uint8_t channel, uint8_t operator,
   uint8_t detune)
 {
     uint8_t port, *valuep, address;
@@ -138,10 +139,10 @@ void ym_set_detune(uint8_t channel, uint8_t operator,
     address = ym_calculate_address(channel, operator);
     valuep = shadow_0x30 + address;
     *valuep = (*valuep & 0x8f) + (detune << 4);
-    ym_set(port, 0x30 + address, *valuep) ;
+    ym_set(self, port, 0x30 + address, *valuep);
 }
 
-void ym_set_amplitude(uint8_t channel, uint8_t operator,
+void ym_set_amplitude(Ym_driver *self, uint8_t channel, uint8_t operator,
   uint8_t amplitude)
 {
     uint8_t port, address;
@@ -152,7 +153,7 @@ void ym_set_amplitude(uint8_t channel, uint8_t operator,
 
     port = channel / 3;
     address = ym_calculate_address(channel, operator);
-    ym_set(port, 0x40 + address, amplitude);
+    ym_set(self, port, 0x40 + address, amplitude);
 }
 
 static uint8_t ym_calculate_address(uint8_t channel,

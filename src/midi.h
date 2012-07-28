@@ -42,6 +42,7 @@ void midi_in_init(Midi_in *self, Transport_in *transport);
 @param message The Midi_message structure to fill. */
 void midi_in_wait(Midi_in *self, Midi_message *message);
 
+
 typedef struct Midi_out Midi_out;
 
 typedef void (Midi_out_put)(Midi_out *self, Midi_message *message);

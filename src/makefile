@@ -1,5 +1,5 @@
 TARGET = ym_synth.out
-CSOURCES = ym.c main.c busyloop.c
+CSOURCES = ym.c main.c busyloop.c ym_midi.c midi_message.c
 CC = avr-gcc
 MCU=atmega16
 OPTLEVEL=0
@@ -17,6 +17,8 @@ $(TARGET): $(OBJECTS)
 
 $(OBJECTS): $(DEPS)
 
+size: $(TARGET)
+	avr-size $(TARGET)
 program: $(TARGET)
 	sudo avarice -g --erase --program --file $(TARGET)
 

@@ -17,33 +17,11 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 #include <assert.h>
 #include "ym.h"
 #include "busyloop.h"
+#include "ym_midi.h"
 
 /* This test file assumes the following pin configuration.
 PA0: NCS PA1: NWR PA2: NRD PA3: A0 PA4: A1 PA5: NIC */
 
-void my_control(struct ym_control);
-void my_data(uint8_t);
-void my_io_init(void);
-
-struct ym_config my_config = {my_control, my_data, busyloop_delay_us};
-
-void ym_preset_basic(void);
-int main(void)
-{
-    busyloop_delay_ms(1000);
-    my_io_init();
-    ym_init(&my_config);
-    ym_reset();
-    ym_preset_basic();
-    while(1)
-    {
-        ym_key_on(0);
-        busyloop_delay_ms(300);
-        ym_key_off(0);
-        busyloop_delay_ms(200);
-    }
-    return 0;
-}
 /*
 "Implementation chart"
  Key on/off (on: 0xf0...0xf5, off: 0x00...0x05)
@@ -54,32 +32,32 @@ int main(void)
   Multiplier
 */
 
-void ym_preset_basic(void)
+void ym_preset_basic(Ym_driver *driver)
 {
-    ym_set(ym_PORT0, 0x40,     0x7f);
-    ym_set(ym_PORT0, 0x44,     0x7f);
-    ym_set(ym_PORT0, 0x48,     0x7f);
-    ym_set(ym_PORT0, 0x4C,     0x7f);
-    ym_set(ym_PORT0, 0x50,     0x5F);//     RS/AR
-    ym_set(ym_PORT0, 0x54,     0x99);
-    ym_set(ym_PORT0, 0x58,     0x5F);
-    ym_set(ym_PORT0, 0x5C,     0x94);
-    ym_set(ym_PORT0, 0x60,     0x5);//   AM/D1R
-    ym_set(ym_PORT0, 0x64,     0x5);
-    ym_set(ym_PORT0, 0x68,     0x5);
-    ym_set(ym_PORT0, 0x6C,     0x7);
-    ym_set(ym_PORT0, 0x70,     0x2);//  D2R
-    ym_set(ym_PORT0, 0x74,     0x2);
-    ym_set(ym_PORT0, 0x78,     0x2);
-    ym_set(ym_PORT0, 0x7C,     0x2);
-    ym_set(ym_PORT0, 0x80,     0x11);//    D1L/RR
-    ym_set(ym_PORT0, 0x84,     0x11);
-    ym_set(ym_PORT0, 0x88,     0x11);
-    ym_set(ym_PORT0, 0x8C,     0xA6);
-    ym_set(ym_PORT0, 0xB0,     0x7);//     Feedback/algorithm
-    ym_set(ym_PORT0, 0xB4,     0xC0);//     Both speakers on
-    ym_set(ym_PORT0, 0xA4,     0x22);//     Set frequency
-    ym_set(ym_PORT0, 0xA0,     0x69);
+    ym_set(driver, ym_PORT0, 0x40,     0x7f);
+    ym_set(driver, ym_PORT0, 0x44,     0x7f);
+    ym_set(driver, ym_PORT0, 0x48,     0x7f);
+    ym_set(driver, ym_PORT0, 0x4C,     0x7f);
+    ym_set(driver, ym_PORT0, 0x50,     0x5F);//     RS/AR
+    ym_set(driver, ym_PORT0, 0x54,     0x99);
+    ym_set(driver, ym_PORT0, 0x58,     0x5F);
+    ym_set(driver, ym_PORT0, 0x5C,     0x94);
+    ym_set(driver, ym_PORT0, 0x60,     0x5);//   AM/D1R
+    ym_set(driver, ym_PORT0, 0x64,     0x5);
+    ym_set(driver, ym_PORT0, 0x68,     0x5);
+    ym_set(driver, ym_PORT0, 0x6C,     0x7);
+    ym_set(driver, ym_PORT0, 0x70,     0x2);//  D2R
+    ym_set(driver, ym_PORT0, 0x74,     0x2);
+    ym_set(driver, ym_PORT0, 0x78,     0x2);
+    ym_set(driver, ym_PORT0, 0x7C,     0x2);
+    ym_set(driver, ym_PORT0, 0x80,     0x11);//    D1L/RR
+    ym_set(driver, ym_PORT0, 0x84,     0x11);
+    ym_set(driver, ym_PORT0, 0x88,     0x11);
+    ym_set(driver, ym_PORT0, 0x8C,     0xA6);
+    ym_set(driver, ym_PORT0, 0xB0,     0x7);//     Feedback/algorithm
+    ym_set(driver, ym_PORT0, 0xB4,     0xC0);//     Both speakers on
+    ym_set(driver, ym_PORT0, 0xA4,     0x22);//     Set frequency
+    ym_set(driver, ym_PORT0, 0xA0,     0x69);
 }
 
 void my_io_init(void)
@@ -117,3 +95,21 @@ void my_data(uint8_t data)
     PORTB = data;
 }
 
+int main(void)
+{
+    Ym_driver driver;
+
+    busyloop_delay_ms(1000);
+    my_io_init();
+    ym_init(&driver, my_control, my_data, busyloop_delay_us);
+    ym_reset(&driver);
+    ym_preset_basic(&driver);
+    while(1)
+    {
+        ym_key_on(&driver, 0);
+        busyloop_delay_ms(300);
+        ym_key_off(&driver, 0);
+        busyloop_delay_ms(200);
+    }
+    return 0;
+}

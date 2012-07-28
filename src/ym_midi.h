@@ -12,26 +12,25 @@ FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef DEBUG_H
-#define DEBUG_H
+#ifndef YM_MIDI_H
+#define YM_MIDI_H
 
-#include <stdio.h>
-/* NDEBUG is for assertions, DEBUG for debug printout. */
-#ifdef DEBUG
-#define DEBUG_TEST 1
-#else
-#define DEBUG_TEST 0
+/** @file
+MIDI layer for YM2612.
+
+@author Martin Åberg martin@fripost.org
+*/
+
+#include "midi.h"
+#include "ym.h"
+
+typedef struct Ym_midi Ym_midi;
+
+struct Ym_midi {
+    Midi_out parent;
+    Ym_driver *driver;
+};
+
+void ym_midi_init(Ym_midi *self, Ym_driver driver);
+
 #endif
-
-#define dprint(fmt, ...) \
-    do { \
-        if (DEBUG_TEST) { \
-            fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
-              __LINE__, __func__, __VA_ARGS__); \
-            fflush(stderr); \
-        } \
-    } while (0)
-
-#define dputs(string) dprint("%s\n", string)
-#endif /* DEBUG_H */
-

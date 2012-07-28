@@ -12,18 +12,3 @@ FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef UART_IN_H
-#define UART_IN_H
-
-typedef struct Uart_in Uart_in;
-
-struct Uart_in {
-    Transport_in parent;
-};
-
-/** @fixme Parameters. */
-void uart_in_init(Uart_in *self, uint32_t baudrate,
-  uint8_t bits, uint8_t stopbits, uint8_t parity);
-
-#endif
-

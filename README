@@ -1,0 +1,8 @@
+YM2612 driver and MIDI input parser
+===================================
+
+The YM and MIDI drivers are designed to be modular and platform
+independent.  The project targets the Atmel AVR platform.
+
+Contact the author Martin Åberg via electronic mail
+martin@fripost.org.

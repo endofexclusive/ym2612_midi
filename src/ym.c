@@ -17,9 +17,6 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 #include <assert.h>
 #include "ym.h"
 
-static uint8_t ym_calculate_address(uint8_t channel,
-  uint8_t operator);
-
 /* These constants are part of the public interface. */
 const uint8_t ym_PORT0 = 0x00;
 const uint8_t ym_PORT1 = 0x01;
@@ -36,6 +33,20 @@ static const struct ym_control CONTROL_WRITE = {.A0 = 0, .A1 = 0,
   .NWR = 0, .NRD = 1, .NCS = 0, .NIC = 1};
 static const uint8_t ym_A0_ADDRESS = 0x00;
 static const uint8_t ym_A0_DATA = 0x01;
+
+static uint8_t ym_get_offset(uint8_t channel, uint8_t operator)
+{
+    /* Failing early or late is a matter of design. */
+    assert(operator <= 3);
+    assert(channel <= 5);
+    return operator * 4 + channel % 3;
+}
+
+static uint8_t ym_get_port(uint8_t channel)
+{
+    assert(channel <= 5);
+    return channel / 3;
+}
 
 void ym_init(Ym_driver *self, ym_set_control *set_control,
   ym_set_data *set_data, ym_delay_us *delay_us)
@@ -80,7 +91,8 @@ static void ym_write_lowlevel(Ym_driver *self, uint8_t a0,
 after write of address and wait 83 cycles (10 us) after write
 of data (8MHz). */
 
-void ym_set(Ym_driver *self, uint8_t port, uint8_t reg, uint8_t value)
+void ym_set(Ym_driver *self, uint8_t port, uint8_t reg,
+  uint8_t value)
 {
     /* Assert the user input (but not internal stuff). */
     assert(ym_PORT0 == port || ym_PORT1 == port);
@@ -109,57 +121,42 @@ void ym_key_off(Ym_driver *self, uint8_t channel)
     ym_set(self, ym_PORT0, 0x28, 0x00 + channel);
 }
 
-void ym_set_multiplier(Ym_driver *self, uint8_t channel, uint8_t operator,
-  uint8_t multiplier)
+void ym_set_multiplier(Ym_driver *self, uint8_t channel,
+  uint8_t operator, uint8_t multiplier)
 {
-    uint8_t port, *valuep, address;
+    uint8_t port, *shadowp, offset;
 
-    assert(channel <= 5);
-    assert(operator <= 3);
     assert(multiplier <= 0x0f);
 
-    port = channel / 3;
-    address = ym_calculate_address(channel, operator);
-    valuep = self->shadow_0x30 + address;
-    *valuep = (*valuep & 0xf0) + multiplier;
-    ym_set(self, port, 0x30 + address, *valuep) ;
+    port = ym_get_port(channel);
+    offset = ym_get_offset(channel, operator);
+    shadowp = self->shadow_0x30 + offset;
+    *shadowp = (*shadowp & 0xf0) + multiplier;
+    ym_set(self, port, 0x30 + offset, *shadowp) ;
 }
 
-void ym_set_detune(Ym_driver *self, uint8_t channel, uint8_t operator,
-  uint8_t detune)
+void ym_set_detune(Ym_driver *self, uint8_t channel,
+  uint8_t operator, uint8_t detune)
 {
-    uint8_t port, *valuep, address;
+    uint8_t port, *shadowp, offset;
 
-    assert(channel <= 5);
-    assert(operator <= 3);
     assert(detune <= 0x07);
 
-    port = channel / 3;
-    address = ym_calculate_address(channel, operator);
-    valuep = self->shadow_0x30 + address;
-    *valuep = (*valuep & 0x8f) + (detune << 4);
-    ym_set(self, port, 0x30 + address, *valuep);
+    port = ym_get_port(channel);
+    offset = ym_get_offset(channel, operator);
+    shadowp = self->shadow_0x30 + offset;
+    *shadowp = (*shadowp & 0x8f) + (detune << 4);
+    ym_set(self, port, 0x30 + offset, *shadowp);
 }
 
-void ym_set_amplitude(Ym_driver *self, uint8_t channel, uint8_t operator,
-  uint8_t amplitude)
+void ym_set_amplitude(Ym_driver *self, uint8_t channel,
+  uint8_t operator, uint8_t amplitude)
 {
-    uint8_t port, address;
+    uint8_t port, offset;
 
-    assert(channel <= 5);
-    assert(operator <= 3);
     assert(amplitude <= 0x7f);
 
-    port = channel / 3;
-    address = ym_calculate_address(channel, operator);
-    ym_set(self, port, 0x40 + address, amplitude);
+    port = ym_get_port(channel);
+    offset = ym_get_offset(channel, operator);
+    ym_set(self, port, 0x40 + offset, amplitude);
 }
-
-static uint8_t ym_calculate_address(uint8_t channel,
-  uint8_t operator)
-{
-    return operator * 4 + channel % 3;
-}
-
-/* Remove asserts by defining NDEBUG. */
-

@@ -1,4 +1,4 @@
 #!/bin/sh
-tbl midi_cc.tbl |groff -Tascii > midi_cc.ascii
+tbl midi_cc.tbl |groff -Tascii | sed '/^$/d' > midi_cc.ascii
 tbl midi_cc.tbl |groff -Tps > midi_cc.ps
 

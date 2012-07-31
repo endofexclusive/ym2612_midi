@@ -2,56 +2,66 @@
 .TS
 tab(;);
 c s s s
-c s s s
 c| c | c s
 n| l | r l .
-MIDI Implementation Chart v 2.0 Control Number Information
 =
-+++ INCOMPLETE +++
+ym2612_midi: MIDI Implementation Chart v 2.0, Control Number Information
 =
 CC #;Function;Parameter\^
 =
-3;Channel algorithm;xx:;yy
+3;Channel algorithm;0-15:;[1] - [2] - [3] - [4] ->
+;;16-31:;([1] | [2]) - [3] - [4] ->
+;;32-47:;([1] | ([2] - [3])) - [4] ->
+;;48-63:;(([1] - [2]) | [3]) - [4] ->
+;;64-79:;([1] - [2]) | ([3] - [4]) ->
+;;80-95:;[1] - ([2] | [3] | [4]) ->
+;;96-111:;([1] - [2]) | [3] | [4] ->
+;;112-127:;[1] | [2] | [3] | [4] ->
 _
-9;Channel operator 1 feedback;
+9;Operator 1 self feedback
 _
-10;Channel Pan;
+10;Channel Pan
 _
-14;Channel LFO AM sensitivity;
+14;Channel LFO AM sensitivity
 _
-15;Channel LFO FM sensitivity;
+15;Channel LFO FM sensitivity
 _
 16;LFO frequency;
 _
 17;Channel 3/6 mode;0:;Normal
-;;7F:;special
+;;7F:;Special
 _
-20;Operator 0 amplitude;xx:;yy
-;;aa:;bb
-21;Operator 1 amplitude
-22;Operator 2 amplitude
-23;Operator 3 amplitude
+20-23;Operator amplitude
 _
-24;Operator attack rate;
+24-27;Operator attack rate
 _
-28;Operator D1R (Decay One Rate);
+28-31;Operator D1R
 _
-52;Operator D1L (Decay One Level);
+52-55;Operator D1L
 _
-56;Operator D2R;
+56-59;Operator D2R
 _
-60;Operator RR (Release Rate);
+60-63;Operator RR
 _
-104;Operator amplitude modulation;0:;Modulate amplitude by LFO
-;;7F:;AM disable
+104-107;Operator AM;0:;Modulate amplitude by LFO
+;;7F:;Disable AM
 _
-108;Operator rate scaling;
+108-111;Operator rate scaling;
 _
-112;Operator frequency multiplier;0-7:;x/2
-;;8-F:;1x
-;;10-17:;2x
-;;...;...
+112-115;Operator freq. multiplier;0-7:;1/2
+;;8-15:;1
+;;16-23:;2
+;;24-31:;3
+;;:;:
+;;120-127:;15
 _
-116;Operator frequency detune;
+116-119;Operator freq. detune;0-15;1
+;;16-31;1+e
+;;31-47;1+2e
+;;48-63;1+3e
+;;64-79;1
+;;80-95;1-e
+;;96-111;1-2e
+;;112-127;1-3e
 _
 .TE

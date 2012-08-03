@@ -14,19 +14,16 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 
 #ifndef BUSYLOOP_H
 #define BUSYLOOP_H
-/** @file
-Busy-waiting-loop module for ATmega16. This module is fine-tuned
-for a system clock frequency of 8 MHz. Timer/Counter0 is used.
-@author Martin Åberg martin@fripost.org
-*/
 
 #include <avr/io.h>
 
-/** Delay execution for a specified @e number of
-milliseconds. */
+/* Busy-waiting-loop module for ATmega16. The module uses
+Timer/Counter0 and assumes a system clock frequency of 8Mhz. */
+
+/* Delay execution for the specified number of milliseconds. */
 void busyloop_delay_ms(uint16_t number);
-/** Delay execution for a specified @e number of
-microseconds. */
+
+/* Delay execution for the specified number of microseconds. */
 void busyloop_delay_us(uint16_t number);
 
 #endif /* BUSYLOOP_H */

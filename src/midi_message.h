@@ -14,13 +14,11 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 
 #ifndef MIDI_MESSAGE_H
 #define MIDI_MESSAGE_H
-/** @file
-MIDI message container and manipulation.
-@author Martin Åberg martin@fripost.org
-*/
 
 #include <stdint.h>
 #include <stdbool.h>
+
+/* MIDI message container and manipulation. */
 
 typedef struct Midi_message Midi_message;
 

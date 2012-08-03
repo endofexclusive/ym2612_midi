@@ -14,38 +14,43 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "busyloop.h"
 
-void busyloop_delay_us(uint16_t delay)
-{
-    TCCR0 |= _BV(WGM01) + _BV(CS00);
-    OCR0 = 79;
-    TCNT0 = 0;
-    delay = (delay / 10) + 1;
+/* The values are tuned for an 8Mhz system clock. */
 
-    while(delay)
-    {
+/* Output Compare Register. T = N(1+OCR0) / f */
+#define TIMER0_OUTPUT_COMPARE_REGISTER_MS 124
+#define TIMER0_OUTPUT_COMPARE_REGISTER_US 79
+
+/* Timer/Counter Control Register: prescaler f/64 */
+#define TIMER0_CLOCK_SOURCE_MS (_BV(CS01) + _BV(CS00))
+/* Timer/Counter Control Register: prescaler f/1 */
+#define TIMER0_CLOCK_SOURCE_US (_BV(CS00))
+
+void busyloop_delay_ms(uint16_t delay)
+{
+    /* Clear Time on Compare (CTC) mode */
+    TCCR0 |= _BV(WGM01) + TIMER0_CLOCK_SOURCE_MS;
+    OCR0 = TIMER0_OUTPUT_COMPARE_REGISTER_MS;
+    /* Timer/Counter 0: TCNT0 increases until a compare match
+    occurs between TCNT0 and OCR0, and then TCNT0 is cleared. */
+    TCNT0 = 0;
+
+    while(delay) {
+        /* Clear the Output Compare Flag in the Timer Interrupt
+        Flag Register. */
         TIFR |= _BV(OCF0);
         while (bit_is_clear(TIFR, OCF0));
         delay--;
     }
 }
 
-void busyloop_delay_ms(uint16_t delay)
+void busyloop_delay_us(uint16_t delay)
 {
-    /* The values in this function are tuned for 8Mhz system
-    clock. */
-    /* Timer/Counter Control Register: prescaler clk_IO/64
-    Clear Time on Compare (CTC) mode */
-    TCCR0 |= _BV(WGM01) + _BV(CS01) + _BV(CS00);
-    /* Output Compare Register. T = (N(1+OCR0)) / f_IO */
-    OCR0 = 124;
-    /* Timer/Counter 0: TCNT0 increases until a compare match
-    occurs between TCNT0 and OCR0, and then TCNT0 is cleared. */
+    TCCR0 |= _BV(WGM01) + TIMER0_CLOCK_SOURCE_US;
+    OCR0 = TIMER0_OUTPUT_COMPARE_REGISTER_US;
     TCNT0 = 0;
+    delay = (delay / 10) + 1;
 
-    while(delay)
-    {
-        /* Clear the Output Compare Flag in the Timer Interrupt
-        Flag Register */
+    while(delay) {
         TIFR |= _BV(OCF0);
         while (bit_is_clear(TIFR, OCF0));
         delay--;

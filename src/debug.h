@@ -16,7 +16,10 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 #define DEBUG_H
 
 #include <stdio.h>
-/* NDEBUG is for assertions, DEBUG for debug printout. */
+
+/* Generate debug output. Note that NDEBUG is for assertions
+(see assert.h), DEBUG for debug printout. */
+
 #ifdef DEBUG
 #define DEBUG_TEST 1
 #else
@@ -33,5 +36,5 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
     } while (0)
 
 #define dputs(string) dprint("%s\n", string)
-#endif /* DEBUG_H */
 
+#endif /* DEBUG_H */

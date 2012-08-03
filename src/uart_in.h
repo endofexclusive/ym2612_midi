@@ -21,9 +21,8 @@ struct Uart_in {
     Transport_in parent;
 };
 
-/** @fixme Parameters. */
+/* fixme: parameters. */
 void uart_in_init(Uart_in *self, uint32_t baudrate,
   uint8_t bits, uint8_t stopbits, uint8_t parity);
 
 #endif
-

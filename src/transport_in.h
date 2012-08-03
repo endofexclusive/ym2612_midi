@@ -17,6 +17,8 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <stdint.h>
 
+/* Interface for for a MIDI input transporter. */
+
 typedef struct Transport_in Transport_in;
 typedef uint8_t (Transport_in_get)(Transport_in *self);
 
@@ -25,4 +27,3 @@ struct Transport_in {
 };
 
 #endif
-

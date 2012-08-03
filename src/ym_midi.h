@@ -15,14 +15,10 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef YM_MIDI_H
 #define YM_MIDI_H
 
-/** @file
-MIDI layer for YM2612.
-
-@author Martin Åberg martin@fripost.org
-*/
-
 #include "midi.h"
 #include "ym.h"
+
+/* MIDI layer for YM2612. */
 
 typedef struct Ym_midi Ym_midi;
 

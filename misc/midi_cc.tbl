@@ -43,8 +43,8 @@ _
 _
 60-63;Operator RR
 _
-104-107;Operator AM;0:;Modulate amplitude by LFO
-;;7F:;Disable AM
+104-107;Operator AM;0:;Disable AM
+;;1-127:;Modulate amplitude by LFO
 _
 108-111;Operator rate scaling;
 _

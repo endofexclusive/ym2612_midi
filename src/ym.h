@@ -100,6 +100,15 @@ void ym_key_off(Ym_driver *self, uint8_t channel);
 /* Stop playing a note on a channel. */
 void ym_key_on(Ym_driver *self, uint8_t channel);
 
+void ym_set_algorithm(Ym_driver *self, uint8_t channel,
+  uint8_t algorithm);
+
+void ym_set_op1_self_feedback(Ym_driver *self, uint8_t channel,
+  uint8_t feedback);
+
+void ym_set_pan(Ym_driver *self, uint8_t channel,
+  uint8_t pan);
+
 /* Set the frequency multiplier of a channel operator. */
 void ym_set_multiplier(Ym_driver *self, uint8_t channel, uint8_t operator,
   uint8_t multiplier);

@@ -1,6 +1,6 @@
 TARGET = ym_synth.out
 CFILES = main.c ym.c busyloop.c ym_midi.c midi_message.c
-OPTLEVEL=0
+OPTLEVEL=s
 CFLAGS = -mmcu=$(MCU) -std=c99 -g -O$(OPTLEVEL) -Wall
 LDFLAGS = -mmcu=$(MCU) -Wl,-Map,$(TARGET).map
 VPATH = ..

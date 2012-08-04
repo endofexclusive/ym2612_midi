@@ -16,106 +16,157 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 #include "ym_midi.h"
 #include "ym.h"
 
-#define CC_SET_ALGORITHM 3
-#define CC_SET_OP1_SELF_FEEDBACK 9
-#define CC_SET_PAN 10
-#define CC_SET_LFO_AM_SENSITIVITY 14
-#define CC_SET_LFO_FM_SENSITIVITY 15
-#define CC_SET_LFO_FREQUENCY 16
-#define CC_SET_CHANNEL36_MODE 17
-#define CC_SET_AMPLITUDE 20
-#define CC_SET_ATTACK_RATE 24
-#define CC_SET_D1R 28
-#define CC_SET_D1L 52
-#define CC_SET_D2R 56
-#define CC_SET_RR 60
-#define CC_SET_AM 104
-#define CC_SET_RATE_SCALING 108
-#define CC_SET_MULTIPLIER 112
-#define CC_SET_DETUNE 116
+typedef void cc_function(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value);
+
+struct cc_function_node {
+    cc_function *fun;
+    uint8_t upper;
+    uint8_t lower;
+};
 
 static uint8_t scale(uint8_t n)
 {
     return 128/n;
 }
 
-/* Implementation of "MIDI Implementation Chart v 2.0, Control
-Number Information". A lookup-table based approach has been
-considered but the focus for now is on saving data memory
-(not code memory). The function has no channel guard. */
-static void ym_midi_put_cc(Ym_midi *self, Midi_message *m)
+static uint8_t get_operator(uint8_t controller)
 {
-    const uint8_t channel = m->status & 0x0f;
-    const uint8_t controller = m->data1;
-    const uint8_t value = m->data2;
-    Ym_driver *driver = self->driver;
+    return controller % 4;
+}
 
-    switch (controller) {
-    case CC_SET_ALGORITHM:
-        ym_set_algorithm(driver, channel, value/scale(8));
-        break;
-    case CC_SET_OP1_SELF_FEEDBACK:
-        ym_set_op1_self_feedback(driver, channel, value/scale(8));
-        break;
-    case CC_SET_PAN:
-        ym_set_pan(driver, channel, value/scale(3));
-        break;
-    case CC_SET_LFO_AM_SENSITIVITY:
-    case CC_SET_LFO_FM_SENSITIVITY:
-    case CC_SET_LFO_FREQUENCY:
-    case CC_SET_CHANNEL36_MODE:
-        break;
-    default:
-        {
-            /* These assignments depend on the layout of CC the
-            numbers. */
-            uint8_t operator = controller / 4;
-            uint8_t function = controller - operator;
+static void cc_channel_algorithm(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+//    ym_set_algorithm(driver, channel, value/scale(8));
+}
 
-            switch (function) {
-            case 20:
-                ym_set_amplitude(driver, channel, operator,
-                  value/scale(128));
-                break;
-            case 24:
+static void cc_operator_1_self_feedback(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+//    ym_set_op1_self_feedback(driver, channel, value/scale(8));
+}
+
+static void cc_channel_pan(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+//    ym_set_pan(driver, channel, value/scale(3));
+}
+
+static void cc_channel_lfo_am_sensitivity(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+}
+
+static void cc_channel_lfo_fm_sensitivity(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+}
+
+static void cc_lfo_frequency(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+}
+
+static void cc_channel_36_mode(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+}
+
+static void cc_operator_amplitude(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+    ym_set_amplitude(driver, channel, get_operator(controller),
+      value/scale(128));
+}
+
+static void cc_operator_attack_rate(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+}
+
+static void cc_operator_d1r(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+}
+
+static void cc_operator_d1l(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+}
+
+static void cc_operator_d2r(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+}
+
+static void cc_operator_rr(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+}
+
+static void cc_operator_am(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+}
+
+static void cc_operator_rate_scaling(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+}
+
+static void cc_operator_freq_multiplier(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+    ym_set_multiplier(driver, channel, get_operator(controller),
+      value/scale(16));
+}
+
+static void cc_operator_freq_detune(Ym_driver *driver, uint8_t controller,
+  uint8_t channel, uint8_t value)
+{
+    ym_set_detune(driver, channel, get_operator(controller),
+      value/scale(8));
+}
+
+/*
                 ym_set_attack_rate(driver, channel, operator,
                   value/scale(32));
-                break;
-            case 28:
                 ym_set_d1r(driver, channel, operator,
                   value/scale(32));
-                break;
-            case 52:
                 ym_set_d1l(driver, channel, operator,
                   value/scale(16));
-                break;
-            case 56:
                 ym_set_d2r(driver, channel, operator,
                   value/scale(32));
-                break;
-            case 60:
                 ym_set_rr(driver, channel, operator,
                   value/scale(16));
-                break;
-            case 104:
                 ym_set_am(driver, channel, operator, 0 != value);
-                break;
-            case 108:
                 ym_set_rate_scaling(driver, channel, operator,
                   value/scale(4));
-                break;
-            case 112:
-                ym_set_multiplier(driver, channel, operator,
-                  value/scale(16));
-                break;
-            case 116:
-                ym_set_detune(driver, channel, operator,
-                  value/scale(8));
-                break;
-            }
+*/
+
+#include "ym_midi_cc.c"
+
+#define NELEMENTS(a) (sizeof(a) / sizeof(*(a)))
+
+/* Implementation of "MIDI Implementation Chart v 2.0, Control
+Number Information". The function has no channel guard. */
+static void ym_midi_put_cc(Ym_midi *self, Midi_message *m)
+{
+    struct cc_function_node *node = cc_functions;
+    uint8_t i = NELEMENTS(cc_functions);
+    const uint8_t cc = m->data1;
+    const uint8_t channel = m->status & 0x0f;
+
+    while (i--) {
+        if (node->upper <= cc && node->lower <= cc) {
+            node->fun(self->driver, cc, channel, m->data2);
+            break;
         }
+        node++;
     }
 }
+
 
 static void ym_midi_put(Ym_midi *self, Midi_message *m)
 {
@@ -157,3 +208,4 @@ void ym_midi_init(Ym_midi *self, Ym_driver *driver)
     self->driver = driver;
     dputs("Initializing Ym_midi");
 }
+

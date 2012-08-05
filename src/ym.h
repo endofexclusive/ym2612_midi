@@ -17,10 +17,13 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <inttypes.h>
 
-/* Driver for the YM2612 chip.  fixme: Add const qualifiers to
-function parameters where suitable. Define types. That will
-prevent bugs that appear because functions are called with
-parameters in wrong order.
+/* Driver for the YM2612 chip. Special care has been taken
+to use the terms as defined by Yamaha. The terms have been
+extracted from the japanese documentation on the chip YM2608.
+
+fixme: Add const qualifiers to function parameters where
+suitable. Define types. That will prevent bugs that appear
+because functions are called with parameters in wrong order.
 */
 
 struct ym_control;
@@ -57,11 +60,20 @@ struct ym_control {
     unsigned int NIC : 1;
 };
 
+#define SHADOW22 0
+#define SHADOW30 (SHADOW22 + 1)
+#define SHADOW50 (SHADOW30 + 0x10)
+#define SHADOW60 (SHADOW50 + 0x10)
+#define SHADOW80 (SHADOW60 + 0x10)
+#define SHADOWB0 (SHADOW80 + 0x10)
+#define SHADOWB4 (SHADOWB0 + 4)
+#define SHADOWLEN (SHADOWB4 + 4)
+
 struct Ym_driver {
     ym_set_control *set_control;
     ym_set_data *set_data;
     ym_delay_us *delay_us; 
-    uint8_t shadow_0x30[0x10];
+    uint8_t shadow[2][SHADOWLEN];
 };
 
 /* Identifies port 0.
@@ -100,27 +112,52 @@ void ym_key_off(Ym_driver *self, uint8_t channel);
 /* Stop playing a note on a channel. */
 void ym_key_on(Ym_driver *self, uint8_t channel);
 
+
+/* Channel configuration */
+
 void ym_set_algorithm(Ym_driver *self, uint8_t channel,
   uint8_t algorithm);
 
-void ym_set_op1_self_feedback(Ym_driver *self, uint8_t channel,
+void ym_set_feedback(Ym_driver *self, uint8_t channel,
   uint8_t feedback);
 
-void ym_set_pan(Ym_driver *self, uint8_t channel,
-  uint8_t pan);
+void ym_set_lr(Ym_driver *self, uint8_t channel,
+  uint8_t lr);
+
+/* Operator frequency */
 
 /* Set the frequency multiplier of a channel operator. */
-void ym_set_multiplier(Ym_driver *self, uint8_t channel, uint8_t operator,
+void ym_set_multiple(Ym_driver *self, uint8_t channel, uint8_t operator,
   uint8_t multiplier);
 
-/* Set the frequency detune factor for a channel operator.
-fixme: This function has to be tested.
-*/
+/* Set the frequency detune factor for a channel operator. */
 void ym_set_detune(Ym_driver *self, uint8_t channel, uint8_t operator,
   uint8_t detune);
 
-/* Set the amplitude of an operator. */
-void ym_set_amplitude(Ym_driver *self, uint8_t channel, uint8_t operator,
-  uint8_t amplitude);
+/* Operator volume envelope */
+
+/* Set the total level of an operator. */
+void ym_set_total_level(Ym_driver *self, uint8_t channel, uint8_t operator,
+  uint8_t level);
+
+void ym_set_attack_rate(Ym_driver *self, uint8_t channel, uint8_t operator,
+  uint8_t rate);
+
+void ym_set_decay_rate(Ym_driver *self, uint8_t channel, uint8_t operator,
+  uint8_t rate);
+
+void ym_set_sustain_level(Ym_driver *self, uint8_t channel, uint8_t operator,
+  uint8_t level);
+
+void ym_set_sustain_rate(Ym_driver *self, uint8_t channel, uint8_t operator,
+  uint8_t rate);
+
+void ym_set_release_rate(Ym_driver *self, uint8_t channel, uint8_t operator,
+  uint8_t rate);
+
+void ym_set_key_scale(Ym_driver *self, uint8_t channel, uint8_t operator,
+  uint8_t scale);
+
+void ym_set_ch36_special_mode(Ym_driver *self, uint8_t channel, uint8_t mode);
 
 #endif

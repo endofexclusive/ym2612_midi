@@ -1,24 +1,23 @@
-PROGS = test
-OBJECTS = ym.o test.o
-SRCDIR = ../..
-VPATH = $(SRCDIR)
+TARGET = unix_ym
+CFILES = test.c ym.c
+UNITDIR = ../..
+CFLAGS = -I $(UNITDIR) -std=c99 -g -Wall -DDEBUG
+VPATH = $(UNITDIR)
 
-CFLAGS = -I $(SRCDIR) -std=c99 -Wall -Wextra -pedantic \
-         -Wstrict-prototypes
+OBJECTS = $(CFILES:.c=.o)
 
-all: $(PROGS)
-
-$(PROGS): $(OBJECTS)
-
-$(OBJECTS): $(DEPS)
+test: $(TARGET)
+	./$(TARGET)
+	
+$(TARGET): $(OBJECTS)
+	$(CC) -o $(TARGET) $(OBJECTS)
 
 clean:
-	rm -f ym.o test.o test
+	rm -f $(OBJECTS) $(TARGET)
 
 # Every non-.PHONY rule must update a file with the exact
 # name of its target.  Make sure every command script touches
 # the file "$@"-- not "../$@", or "$(notdir $@)", but exactly
 # $@. That way you and GNU make always agree.
-
 # http://mad-scientist.net/make/rules.html
 

@@ -97,8 +97,8 @@ void my_data(uint8_t data)
 
 int main(void)
 {
-    Ym_driver driver;
 
+    Ym_driver driver;
     busyloop_delay_ms(1000);
     my_io_init();
     ym_init(&driver, my_control, my_data, busyloop_delay_us);

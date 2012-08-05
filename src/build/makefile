@@ -1,6 +1,6 @@
 TARGET = ym_synth.out
 CFILES = main.c ym.c busyloop.c ym_midi.c midi_message.c
-OPTLEVEL=s
+OPTLEVEL=0
 CFLAGS = -mmcu=$(MCU) -std=c99 -g -O$(OPTLEVEL) -Wall
 LDFLAGS = -mmcu=$(MCU) -Wl,-Map,$(TARGET).map
 VPATH = ..
@@ -14,8 +14,8 @@ $(TARGET): $(OBJECTS)
 
 $(OBJECTS): $(DEPS)
 
-size: $(TARGET)
-	avr-size $(TARGET)
+size: $(TARGET) $(OBJECTS)
+	avr-size $(TARGET) $(OBJECTS)
 
 program: $(TARGET)
 	sudo avarice -g --erase --program --file $(TARGET)

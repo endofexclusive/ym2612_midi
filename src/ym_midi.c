@@ -35,10 +35,11 @@ static uint8_t get_operator(uint8_t controller)
     return controller % 4;
 }
 
+/* Beware: The following functions contain magic numbers. */
 static void cc_channel_algorithm(Ym_driver *driver, uint8_t controller,
   uint8_t channel, uint8_t value)
 {
-//    ym_set_algorithm(driver, channel, value/scale(8));
+    ym_set_algorithm(driver, channel, value/scale(8));
 }
 
 static void cc_operator_1_self_feedback(Ym_driver *driver, uint8_t controller,
@@ -50,7 +51,7 @@ static void cc_operator_1_self_feedback(Ym_driver *driver, uint8_t controller,
 static void cc_channel_pan(Ym_driver *driver, uint8_t controller,
   uint8_t channel, uint8_t value)
 {
-//    ym_set_pan(driver, channel, value/scale(3));
+    ym_set_pan(driver, channel, value/43);
 }
 
 static void cc_channel_lfo_am_sensitivity(Ym_driver *driver, uint8_t controller,
@@ -83,6 +84,8 @@ static void cc_operator_amplitude(Ym_driver *driver, uint8_t controller,
 static void cc_operator_attack_rate(Ym_driver *driver, uint8_t controller,
   uint8_t channel, uint8_t value)
 {
+    ym_set_attack_rate(driver, channel, get_operator(controller),
+      value/scale(32));
 }
 
 static void cc_operator_d1r(Ym_driver *driver, uint8_t controller,
@@ -93,6 +96,8 @@ static void cc_operator_d1r(Ym_driver *driver, uint8_t controller,
 static void cc_operator_d1l(Ym_driver *driver, uint8_t controller,
   uint8_t channel, uint8_t value)
 {
+    ym_set_d1l(driver, channel, get_operator(controller),
+      value/scale(16));
 }
 
 static void cc_operator_d2r(Ym_driver *driver, uint8_t controller,
@@ -103,6 +108,8 @@ static void cc_operator_d2r(Ym_driver *driver, uint8_t controller,
 static void cc_operator_rr(Ym_driver *driver, uint8_t controller,
   uint8_t channel, uint8_t value)
 {
+    ym_set_rr(driver, channel, get_operator(controller),
+      value/scale(16));
 }
 
 static void cc_operator_am(Ym_driver *driver, uint8_t controller,
@@ -130,16 +137,10 @@ static void cc_operator_freq_detune(Ym_driver *driver, uint8_t controller,
 }
 
 /*
-                ym_set_attack_rate(driver, channel, operator,
-                  value/scale(32));
                 ym_set_d1r(driver, channel, operator,
                   value/scale(32));
-                ym_set_d1l(driver, channel, operator,
-                  value/scale(16));
-                ym_set_d2r(driver, channel, operator,
+               ym_set_d2r(driver, channel, operator,
                   value/scale(32));
-                ym_set_rr(driver, channel, operator,
-                  value/scale(16));
                 ym_set_am(driver, channel, operator, 0 != value);
                 ym_set_rate_scaling(driver, channel, operator,
                   value/scale(4));

@@ -1,4 +1,6 @@
 #!/bin/sh
+
 tbl midi_cc.tbl |groff -Tascii | sed '/^$/d' > midi_cc.ascii
 #tbl midi_cc.tbl |groff -Tps > midi_cc.ps
 
+./cc_functions.py < midi_cc.tbl > ../src/ym_midi_cc.c

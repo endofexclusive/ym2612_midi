@@ -16,6 +16,7 @@ this program (COPYING).  If not, see <http://www.gnu.org/licenses/>. */
 #include <stdlib.h>
 #include <assert.h>
 #include "ym.h"
+#include "debug.h"
 
 /* These constants are part of the public interface. */
 const uint8_t ym_PORT0 = 0x00;
@@ -66,10 +67,10 @@ void ym_reset(Ym_driver *self)
     self->delay_us(24);
     self->set_control(CONTROL_IDLE);
     /* FIXME: Use a macro for number of elements */
-    int i = sizeof(self->shadow_0x30) / sizeof(uint8_t);
+    int i = sizeof(self->shadow) / sizeof(uint8_t);
     while(i--)
     {
-        self->shadow_0x30[i] = 0;
+        self->shadow[0][i] = 0;
     }
 }
 /* FIXME: The parameter types... */
@@ -96,7 +97,9 @@ void ym_set(Ym_driver *self, uint8_t port, uint8_t reg,
 {
     /* Assert the user input (but not internal stuff). */
     assert(ym_PORT0 == port || ym_PORT1 == port);
-    /* Assert reg. */
+    /* fixme: Assert reg. */
+
+    dprint("port%d:$%02x <- $%02x\n", port, reg, value);
 
     /* Select register. */
     ym_write_lowlevel(self, ym_A0_ADDRESS, port, reg);
@@ -121,7 +124,7 @@ void ym_key_off(Ym_driver *self, uint8_t channel)
     ym_set(self, ym_PORT0, 0x28, 0x00 + channel);
 }
 
-void ym_set_multiplier(Ym_driver *self, uint8_t channel,
+void ym_set_multiple(Ym_driver *self, uint8_t channel,
   uint8_t operator, uint8_t multiplier)
 {
     uint8_t port, *shadowp, offset;
@@ -130,7 +133,7 @@ void ym_set_multiplier(Ym_driver *self, uint8_t channel,
 
     port = ym_get_port(channel);
     offset = ym_get_offset(channel, operator);
-    shadowp = self->shadow_0x30 + offset;
+    shadowp = self->shadow[port] + SHADOW30 + offset;
     *shadowp = (*shadowp & 0xf0) + multiplier;
     ym_set(self, port, 0x30 + offset, *shadowp) ;
 }
@@ -144,19 +147,59 @@ void ym_set_detune(Ym_driver *self, uint8_t channel,
 
     port = ym_get_port(channel);
     offset = ym_get_offset(channel, operator);
-    shadowp = self->shadow_0x30 + offset;
+    shadowp = self->shadow[port] + SHADOW30 + offset;
     *shadowp = (*shadowp & 0x8f) + (detune << 4);
     ym_set(self, port, 0x30 + offset, *shadowp);
 }
 
-void ym_set_amplitude(Ym_driver *self, uint8_t channel,
-  uint8_t operator, uint8_t amplitude)
+void ym_set_total_level(Ym_driver *self, uint8_t channel,
+  uint8_t operator, uint8_t level)
 {
     uint8_t port, offset;
 
-    assert(amplitude <= 0x7f);
+    assert(level <= 0x7f);
 
     port = ym_get_port(channel);
     offset = ym_get_offset(channel, operator);
-    ym_set(self, port, 0x40 + offset, amplitude);
+    ym_set(self, port, 0x40 + offset, level);
+}
+
+void ym_set_attack_rate(Ym_driver *self, uint8_t channel, uint8_t operator,
+  uint8_t rate)
+{
+    uint8_t port, *shadowp, offset;
+
+    assert(rate <= 0x1f);
+
+    port = ym_get_port(channel);
+    offset = ym_get_offset(channel, operator);
+    shadowp = self->shadow[port] + SHADOW50 + offset;
+    *shadowp = (*shadowp & 0xe0) + rate;
+    ym_set(self, port, 0x50 + offset, *shadowp) ;
+}
+
+void ym_set_decay_rate(Ym_driver *self, uint8_t channel, uint8_t operator,
+  uint8_t rate);
+
+void ym_set_sustain_level(Ym_driver *self, uint8_t channel, uint8_t operator,
+  uint8_t level);
+
+void ym_set_sustain_rate(Ym_driver *self, uint8_t channel, uint8_t operator,
+  uint8_t rate);
+
+void ym_set_release_rate(Ym_driver *self, uint8_t channel, uint8_t operator,
+  uint8_t rate);
+
+void ym_set_key_scale(Ym_driver *self, uint8_t channel, uint8_t operator,
+  uint8_t scale)
+{
+    uint8_t port, *shadowp, offset;
+
+    assert(scale <= 0x03);
+
+    port = ym_get_port(channel);
+    offset = ym_get_offset(channel, operator);
+    shadowp = self->shadow[port] + SHADOW50 + offset;
+    *shadowp = (*shadowp & 0x3f) + (scale << 6);
+    ym_set(self, port, 0x50 + offset, *shadowp);
 }

@@ -40,11 +40,11 @@ int main(void)
       delay_us_impl);
     ym_reset(ydp);
 
-    for (int ch = 0; ch < 6; ch++) {
+    for (int key = 0; key < 3; key++) {
+        ym_key_on(ydp, 0, key+12*2);
+    }
+    for (int ch = 0; ch < 6; ch+=1) {
         for (int op = 0; op < 4; op++) {
-            ym_set_key_scale(ydp, ch, op, 1);
-            ym_set_key_scale(ydp, ch, op, 3);
-            ym_set_attack_rate(ydp, ch, op, 31);
         }
     }
 

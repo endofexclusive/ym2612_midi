@@ -107,10 +107,10 @@ set to zero.
 void ym_reset(Ym_driver *self);
 
 /* Play a note on a channel. */
-void ym_key_off(Ym_driver *self, uint8_t channel);
+void ym_key_on(Ym_driver *self, uint8_t channel, uint8_t key);
 
 /* Stop playing a note on a channel. */
-void ym_key_on(Ym_driver *self, uint8_t channel);
+void ym_key_off(Ym_driver *self, uint8_t channel);
 
 
 /* Channel configuration */
@@ -123,6 +123,8 @@ void ym_set_feedback(Ym_driver *self, uint8_t channel,
 
 void ym_set_lr(Ym_driver *self, uint8_t channel,
   uint8_t lr);
+
+void ym_set_ch36_special_mode(Ym_driver *self, uint8_t channel, uint8_t mode);
 
 /* Operator frequency */
 
@@ -157,7 +159,5 @@ void ym_set_release_rate(Ym_driver *self, uint8_t channel, uint8_t operator,
 
 void ym_set_key_scale(Ym_driver *self, uint8_t channel, uint8_t operator,
   uint8_t scale);
-
-void ym_set_ch36_special_mode(Ym_driver *self, uint8_t channel, uint8_t mode);
 
 #endif

@@ -112,17 +112,92 @@ void ym_set(Ym_driver *self, uint8_t port, uint8_t reg,
     self->delay_us(10);
 }
 
-void ym_key_on(Ym_driver *self, uint8_t channel)
+/* This is the F-Number table for "Note" C# to C. */
+static uint16_t notes[] = {
+    654, 693, 734, 778, 824, 873, 925, 980, 1038, 1100,
+    1165, 1235
+};
+
+/* Key ranges from 0 to 8*12-1. */
+void ym_key_on(Ym_driver *self, uint8_t channel, uint8_t key)
 {
+    uint8_t port, offset, block, msb, lsb;
+
     assert(channel <= 5);
-    ym_set(self, ym_PORT0, 0x28, 0xf0 + channel);
+    assert(key <= 95);
+
+    port = ym_get_port(channel);
+    offset = channel % 3;
+
+    block = key / 12;
+    key = key % 12;
+    lsb = notes[key] % 256;
+    msb = notes[key] >> 8;
+    ym_set(self, port, 0xa4 + offset, (block << 3) + msb);
+    ym_set(self, port, 0xa0 + offset, lsb);
+
+    ym_set(self, port, 0x28, 0xf0 + channel);
 }
 
 void ym_key_off(Ym_driver *self, uint8_t channel)
 {
     assert(channel <= 5);
-    ym_set(self, ym_PORT0, 0x28, 0x00 + channel);
+
+    ym_set(self, ym_get_port(channel), 0x28, 0x00 + channel);
 }
+
+
+void ym_set_algorithm(Ym_driver *self, uint8_t channel,
+  uint8_t algorithm)
+{
+    uint8_t port, *shadowp, offset;
+
+    assert(algorithm <= 0x07);
+    assert(channel <= 5);
+
+    port = ym_get_port(channel);
+    offset = channel % 3;
+    shadowp = self->shadow[port] + SHADOWB0 + offset;
+    *shadowp = (*shadowp & 0xf8) + algorithm;
+    ym_set(self, port, 0xb0 + offset, *shadowp) ;
+}
+
+void ym_set_feedback(Ym_driver *self, uint8_t channel,
+  uint8_t feedback)
+{
+    uint8_t port, *shadowp, offset;
+
+    assert(feedback <= 0x07);
+    assert(channel <= 5);
+
+    port = ym_get_port(channel);
+    offset = channel % 3;
+    shadowp = self->shadow[port] + SHADOWB0 + offset;
+    *shadowp = (*shadowp & 0xc7) + (feedback << 3);
+    ym_set(self, port, 0xb0 + offset, *shadowp) ;
+}
+
+void ym_set_lr(Ym_driver *self, uint8_t channel,
+  uint8_t lr)
+{
+    uint8_t port, *shadowp, offset;
+
+    assert(lr <= 0x03);
+    assert(channel <= 5);
+
+    port = ym_get_port(channel);
+    offset = channel % 3;
+    shadowp = self->shadow[port] + SHADOWB4 + offset;
+    *shadowp = (*shadowp & 0xc7) + (lr << 6);
+    ym_set(self, port, 0xb4 + offset, *shadowp) ;
+}
+
+/*
+void ym_set_ch36_special_mode(Ym_driver *self, uint8_t channel, uint8_t mode)
+{
+}
+*/
+
 
 void ym_set_multiple(Ym_driver *self, uint8_t channel,
   uint8_t operator, uint8_t multiplier)
@@ -152,6 +227,7 @@ void ym_set_detune(Ym_driver *self, uint8_t channel,
     ym_set(self, port, 0x30 + offset, *shadowp);
 }
 
+
 void ym_set_total_level(Ym_driver *self, uint8_t channel,
   uint8_t operator, uint8_t level)
 {
@@ -179,16 +255,58 @@ void ym_set_attack_rate(Ym_driver *self, uint8_t channel, uint8_t operator,
 }
 
 void ym_set_decay_rate(Ym_driver *self, uint8_t channel, uint8_t operator,
-  uint8_t rate);
+  uint8_t rate)
+{
+    uint8_t port, *shadowp, offset;
+
+    assert(rate <= 0x1f);
+
+    port = ym_get_port(channel);
+    offset = ym_get_offset(channel, operator);
+    shadowp = self->shadow[port] + SHADOW60 + offset;
+    *shadowp = (*shadowp & 0xe0) + rate;
+    ym_set(self, port, 0x60 + offset, *shadowp) ;
+}
 
 void ym_set_sustain_level(Ym_driver *self, uint8_t channel, uint8_t operator,
-  uint8_t level);
+  uint8_t level)
+{
+    uint8_t port, *shadowp, offset;
+
+    assert(level <= 0x0f);
+
+    port = ym_get_port(channel);
+    offset = ym_get_offset(channel, operator);
+    shadowp = self->shadow[port] + SHADOW80 + offset;
+    *shadowp = (*shadowp & 0x0f) + (level << 4);
+    ym_set(self, port, 0x80 + offset, *shadowp);
+}
 
 void ym_set_sustain_rate(Ym_driver *self, uint8_t channel, uint8_t operator,
-  uint8_t rate);
+  uint8_t rate)
+{
+    uint8_t port, offset;
+
+    assert(rate <= 0x1f);
+
+    port = ym_get_port(channel);
+    offset = ym_get_offset(channel, operator);
+    ym_set(self, port, 0x70 + offset, rate);
+}
 
 void ym_set_release_rate(Ym_driver *self, uint8_t channel, uint8_t operator,
-  uint8_t rate);
+  uint8_t rate)
+{
+    uint8_t port, *shadowp, offset;
+
+    assert(rate <= 0x0f);
+
+    port = ym_get_port(channel);
+    offset = ym_get_offset(channel, operator);
+    shadowp = self->shadow[port] + SHADOW80 + offset;
+    *shadowp = (*shadowp & 0xf0) + rate;
+    ym_set(self, port, 0x80 + offset, *shadowp) ;
+}
 
 void ym_set_key_scale(Ym_driver *self, uint8_t channel, uint8_t operator,
   uint8_t scale)
